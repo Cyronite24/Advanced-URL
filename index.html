@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced URL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar for iframe container */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        #preview-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 50;
+            background: #000;
+        }
+        
+        #preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-preview {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+            z-index: 51;
+        }
+
+        .close-preview:hover {
+            background: rgba(239, 68, 68, 0.8); /* Red on hover */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <div class="max-w-xl w-full">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl mb-4 border border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M3 3l18 18"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Advanced URL</h1>
+            <p class="text-slate-400 mt-2 text-sm">Embed and disguise web pages securely.</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl">
+            <form id="cloakForm" class="space-y-6">
+                
+                <!-- URL Input -->
+                <div class="space-y-2">
+                    <label for="targetUrl" class="block text-sm font-medium text-slate-300">Target URL</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                        <input type="text" id="targetUrl" required placeholder="example.com or https://..." 
+                            class="block w-full pl-10 pr-3 py-3 border border-slate-700 rounded-xl leading-5 bg-slate-800/50 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors sm:text-sm">
+                    </div>
+                </div>
+
+                <!-- Advanced Settings Toggle -->
+                <div class="pt-2">
+                    <button type="button" id="toggleAdvanced" class="flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors focus:outline-none">
+                        <svg id="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1 transition-transform duration-200"><path d="m9 18 6-6-6-6"/></svg>
+                        Advanced Disguise Settings
+                    </button>
+                </div>
+
+                <!-- Advanced Settings Container -->
+                <div id="advancedSettings" class="hidden space-y-4 pt-4 border-t border-slate-700/50 mt-4">
+                    <div class="space-y-2">
+                        <label for="customTitle" class="block text-sm font-medium text-slate-300">Custom Tab Title</label>
+                        <input type="text" id="customTitle" placeholder="e.g., Google Docs, Dashboard" value="Google"
+                            class="block w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-800/30 text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm transition-colors">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="customFavicon" class="block text-sm font-medium text-slate-300">Custom Favicon URL</label>
+                        <input type="text" id="customFavicon" placeholder="https://example.com/icon.png" value="https://www.google.com/favicon.ico"
+                            class="block w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-800/30 text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm transition-colors">
+                    </div>
+                    <p class="text-xs text-slate-500 flex items-start mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5 flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        These settings are applied when using the "about:blank" cloaking method to disguise the newly opened tab.
+                    </p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                    <button type="button" id="btnPreview" class="flex items-center justify-center w-full px-4 py-3 border border-slate-600 rounded-xl shadow-sm text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-slate-500 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>
+                        Embed in Page
+                    </button>
+                    
+                    <button type="button" id="btnCloak" class="flex items-center justify-center w-full px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-all shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_20px_rgba(79,70,229,0.6)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 12h20"/><path d="M12 2v20"/><path d="m4.93 4.93 14.14 14.14"/><path d="m4.93 19.07 14.14-14.14"/></svg>
+                        Cloak (about:blank)
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Notice -->
+        <div class="mt-6 text-center text-xs text-slate-500">
+            Note: Some websites restrict embedding via X-Frame-Options or Content Security Policy (CSP). These sites will refuse to connect inside the iframe.
+        </div>
+    </div>
+
+    <!-- Fullscreen In-Page Preview Container -->
+    <div id="preview-container">
+        <iframe id="preview-frame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+        <button id="closePreview" class="close-preview flex items-center shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            Close Preview
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleAdvancedBtn = document.getElementById('toggleAdvanced');
+            const advancedSettings = document.getElementById('advancedSettings');
+            const chevron = document.getElementById('chevron');
+            const targetUrlInput = document.getElementById('targetUrl');
+            
+            const btnPreview = document.getElementById('btnPreview');
+            const btnCloak = document.getElementById('btnCloak');
+            
+            const previewContainer = document.getElementById('preview-container');
+            const previewFrame = document.getElementById('preview-frame');
+            const closePreviewBtn = document.getElementById('closePreview');
+
+            // Toggle Advanced Settings
+            toggleAdvancedBtn.addEventListener('click', () => {
+                advancedSettings.classList.toggle('hidden');
+                if (advancedSettings.classList.contains('hidden')) {
+                    chevron.style.transform = 'rotate(0deg)';
+                } else {
+                    chevron.style.transform = 'rotate(90deg)';
+                }
+            });
+
+            // Format URL helper function
+            function formatUrl(url) {
+                if (!url) return '';
+                url = url.trim();
+                // Add https:// if it doesn't start with http:// or https://
+                if (!/^https?:\/\//i.test(url)) {
+                    url = 'https://' + url;
+                }
+                return url;
+            }
+
+            // Method 1: Embed directly on the current page
+            btnPreview.addEventListener('click', () => {
+                const rawUrl = targetUrlInput.value;
+                if (!rawUrl) {
+                    highlightInput(targetUrlInput);
+                    return;
+                }
+
+                const finalUrl = formatUrl(rawUrl);
+                previewFrame.src = finalUrl;
+                previewContainer.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            });
+
+            // Close in-page preview
+            closePreviewBtn.addEventListener('click', () => {
+                previewContainer.style.display = 'none';
+                previewFrame.src = ''; // clear source
+                document.body.style.overflow = ''; // Restore scrolling
+            });
+
+            // Method 2: Cloak via about:blank popup
+            btnCloak.addEventListener('click', () => {
+                const rawUrl = targetUrlInput.value;
+                if (!rawUrl) {
+                    highlightInput(targetUrlInput);
+                    return;
+                }
+
+                const finalUrl = formatUrl(rawUrl);
+                const customTitle = document.getElementById('customTitle').value || 'New Tab';
+                const customFavicon = document.getElementById('customFavicon').value;
+
+                // Open a completely new blank tab
+                let win = window.open('about:blank', '_blank');
+                
+                if (win) {
+                    // Inject basic styling to remove margins and set up full screen
+                    win.document.body.style.margin = '0';
+                    win.document.body.style.height = '100vh';
+                    win.document.body.style.overflow = 'hidden';
+                    win.document.body.style.backgroundColor = '#fff';
+
+                    // Set Title
+                    win.document.title = customTitle;
+
+                    // Set Favicon
+                    if (customFavicon) {
+                        let link = win.document.createElement('link');
+                        link.rel = 'icon';
+                        link.href = customFavicon;
+                        win.document.head.appendChild(link);
+                    }
+
+                    // Create and inject the iframe
+                    let iframe = win.document.createElement('iframe');
+                    iframe.style.border = 'none';
+                    iframe.style.width = '100vw';
+                    iframe.style.height = '100vh';
+                    iframe.style.margin = '0';
+                    iframe.style.padding = '0';
+                    iframe.src = finalUrl;
+                    iframe.sandbox = "allow-same-origin allow-scripts allow-forms allow-popups";
+
+                    win.document.body.appendChild(iframe);
+                } else {
+                    alert('Popup blocked! Please allow popups for this site to use the about:blank cloaking method.');
+                }
+            });
+
+            // Helper to show error on empty input
+            function highlightInput(element) {
+                element.classList.add('ring-2', 'ring-red-500', 'border-red-500');
+                setTimeout(() => {
+                    element.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
